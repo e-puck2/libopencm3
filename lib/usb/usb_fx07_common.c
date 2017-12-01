@@ -26,6 +26,8 @@
 #include "usb_private.h"
 #include "usb_fx07_common.h"
 
+#define TIME_BEFORE_FLUSH	100 //number of times we can not write to USB to trigger a FIFO flush
+
 /* The FS core and the HS core have the same register layout.
  * As the code can be used on both cores, the registers offset is modified
  * according to the selected cores base address. */
@@ -235,7 +237,7 @@ uint16_t stm32fx07_ep_write_packet(usbd_device *usbd_dev, uint8_t addr,
 			count = 0;
 		}
 		count++;
-		if(count > 1000){ 
+		if(count > TIME_BEFORE_FLUSH){ 
 			//if there is a packet not sent during a too long time,
 			//we flush the tx FIFO
 			stm32fx07_flush_txfifo(usbd_dev, addr);
